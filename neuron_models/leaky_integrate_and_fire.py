@@ -77,10 +77,9 @@ class lif_neuron_euler(Neuron):
             self.V_m[self.network.get_timestep()] = self.V_reset
             self.spike()
 
+
 # implementation of an integrate and fire
 # neuron with exponential shaped postsynaptic current
-
-
 class lif_neuron_matrix(Neuron):
 
     def __init__(self, network,  params=None):

@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 eps = 1e-6
 
-
 class Neuron:
     
     def get_param(self, key):
@@ -42,7 +41,7 @@ class Neuron:
         ax.set_xlabel("t [ms]",fontsize=14)
         if plot_input:
             ax2=ax.twinx()
-            ax2.plot(np.arange(0, self.t_sim+eps, self.dt), self.input_current,color="blue", linewidth = 0.6, linestyle = ":")
+            ax2.plot(np.arange(self.dt, self.t_sim+eps, self.dt), self.input_current[1:],color="blue", linewidth = 0.6, linestyle = ":")
             ax2.set_ylabel("I [pA]",color="blue",fontsize=14)
             
         ax.plot(np.arange(0, self.t_sim+eps, self.dt), self.V_m, color="red", linewidth = 1)
