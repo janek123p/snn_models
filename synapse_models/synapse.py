@@ -1,4 +1,7 @@
-class Synapse:
+from abc import ABC as AbstractBaseClass, abstractmethod
+
+
+class Synapse(AbstractBaseClass):
     
     def __init__(self, network, source, target, weight, delay):
         self.network = network
@@ -15,6 +18,7 @@ class Synapse:
             
         self.weight = weight
         self.delay = delay
+        self.delay_steps = int(round(self.delay / self.network.get_timestep()))
         
         self.network.register_synapse(self)
         
@@ -29,6 +33,11 @@ class Synapse:
     
     def get_target_id(self):
         return self.target_id
+
+    @abstractmethod
+    def handle_presynaptic_spike(self):
+        pass
     
-    def handle_spike(self):
-        self.network.get_neuron_by_id(self.target_id).handle_incoming_spike(self.weight, self.delay)
+    @abstractmethod
+    def handle_postsynaptic_spike(self):
+        pass

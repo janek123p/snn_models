@@ -8,7 +8,8 @@ class Network:
         self.t_sim = params["t_sim"]
 
         self.neuron_dict = {}
-        self.synapse_dict = {}
+        self.synapse_dict_by_sources = {}
+        self.synapse_dict_by_targets = {}
 
         self.cur_time_step = 1
         
@@ -26,17 +27,24 @@ class Network:
         self.neuron_dict[neuron.id] = neuron
 
     def register_synapse(self, synapse):
-        if synapse.get_source_id() not in self.synapse_dict:
-            self.synapse_dict[synapse.get_source_id()] = []
-        self.synapse_dict[synapse.get_source_id()].append(synapse)
+        if synapse.get_source_id() not in self.synapse_dict_by_sources:
+            self.synapse_dict_by_sources[synapse.get_source_id()] = []
+        self.synapse_dict_by_sources[synapse.get_source_id()].append(synapse)
+        if synapse.get_target_id() not in self.synapse_dict_by_targets:
+            self.synapse_dict_by_targets[synapse.get_target_id()] = []
+        self.synapse_dict_by_targets[synapse.get_target_id()].append(synapse)
     
-    def handle_spike(self, source_neuron):
-        if isinstance(source_neuron, int):
-            source_neuron = self.neuron_dict[source_neuron]
-        if source_neuron.id in self.synapse_dict:
-            synapses = self.synapse_dict[source_neuron.id]
+    def handle_spike(self, neuron):
+        if isinstance(neuron, int):
+            neuron = self.neuron_dict[neuron]
+        if neuron.id in self.synapse_dict_by_sources:
+            synapses = self.synapse_dict_by_sources[neuron.id]
             for syn in synapses:
-                syn.handle_spike()
+                syn.handle_presynaptic_spike()
+        if neuron.id in self.synapse_dict_by_targets:
+            synapses = self.synapse_dict_by_targets[neuron.id]
+            for syn in synapses:
+                syn.handle_postsynaptic_spike()
 
     def get_timestep(self):
         return self.cur_time_step

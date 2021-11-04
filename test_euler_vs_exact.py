@@ -1,5 +1,5 @@
 from network.network import Network
-from synapse_models.synapse import Synapse
+from synapse_models.static_synapse import StaticSynapse 
 from neuron_models.leaky_integrate_and_fire import lif_neuron_euler, lif_neuron_matrix
 
 net = Network(sim_params = {"t_sim":100.})
@@ -10,8 +10,8 @@ output_neuron = lif_neuron_matrix(net, {"I_e":300.})
 input_neuron_euler = lif_neuron_euler(net, {"I_e":900.})
 output_neuron_euler = lif_neuron_euler(net, {"I_e":300.})
 
-syn = Synapse(net, input_neuron, output_neuron, 700., 1.5)
-syn = Synapse(net, input_neuron_euler, output_neuron_euler, 700., 1.5)
+syn = StaticSynapse(net, input_neuron, output_neuron, 700., 1.5)
+syn = StaticSynapse(net, input_neuron_euler, output_neuron_euler, 700., 1.5)
 
 net.simulate()
 
