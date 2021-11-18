@@ -1,7 +1,9 @@
 from synapse_models.synapse import Synapse
 import numpy as np
 
-
+# small wrapper class for postsynaptic spike
+# containing the timestep and a boolean to indicate, whether
+# this postsynaptic spike has already had an impact on the weight
 class PostsynapticSpikeData:
     def __init__(self, ts):
         self.ts = ts
@@ -16,7 +18,7 @@ class PostsynapticSpikeData:
     def get_timestep(self):
         return self.ts
 
-
+# class for STDP synapse with nearest neighbour pairing scheme
 class STDP_NN_SymmSnyapse(Synapse):
 
     def __init__(self, network, source, target, init_weight, delay, params=None):
@@ -46,7 +48,7 @@ class STDP_NN_SymmSnyapse(Synapse):
     # OVERRIDE
     def handle_presynaptic_spike(self):
         # get delay of synapse in steps, current timestep and
-        delay_steps = int(round(self.delay/self.network.get_resolution()))
+        delay_steps = self.delay_steps
         t_pre = self.network.get_timestep()
         t_pre_last = self.last_presynaptic_spiketimestep
 
@@ -58,7 +60,6 @@ class STDP_NN_SymmSnyapse(Synapse):
             if t_post > t_pre_last - delay_steps and t_post <= t_pre - delay_steps:
                 minus_dt = (t_pre_last - t_post - delay_steps) * \
                     self.network.get_resolution()
-                assert minus_dt < -self.eps_time
                 w_norm = self.weight/self.w_max + self.lambda_val * \
                     pow(1 - self.weight/self.w_max, self.mu_plus) * \
                     np.exp(minus_dt / self.tau_plus)
@@ -76,7 +77,6 @@ class STDP_NN_SymmSnyapse(Synapse):
             # calculate minus delta t which must be negative
             minus_dt = (t_post - t_pre + delay_steps) * \
                 self.network.get_resolution()
-            assert minus_dt < self.eps_time
 
             # depression
             w_norm = self.weight/self.w_max - self.lambda_val * self.alpha * \
@@ -101,12 +101,11 @@ class STDP_NN_SymmSnyapse(Synapse):
             PostsynapticSpikeData(self.network.get_timestep()))
 
     def filter_unnecessary_postsyn_spikes_and_get_latest_in_range(self):
-        # get delay and current timestep
-        delay_steps = int(round(self.delay/self.network.get_resolution()))
+        # get current timestep
         t = self.network.get_timestep()
         # get all spikes before now - delay and grab last one
         filtered_spikes = [
-            x.get_timestep() for x in self.postsynaptic_spikedata if x.get_timestep() < t - delay_steps]
+            x.get_timestep() for x in self.postsynaptic_spikedata if x.get_timestep() < t - self.delay_steps]
         if len(filtered_spikes) > 0:
             last_postsyn_spike_before_delay = filtered_spikes[-1]
             # remove all spikes whose potentiation have been performed and that are no longer needed
