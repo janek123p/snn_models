@@ -58,14 +58,15 @@ class lif_neuron_euler(Neuron):
 
         # check if neuron is refractory
         if self.refractory_steps > 0:
-            # refractory ==> set membrane voltage to reset voltage and decrease number of refractory timesteps
+            # refractory ==> save reset voltage to V_m in order to 
+            # plot it later and decrease number of refractory timesteps
             self.V_m[self.network.get_timestep()] = self.V_reset
             self.refractory_steps -= 1
         else:
             # not refractory ==> evolve membrane voltage
             dv = self.dt * (self.input_current[self.network.get_timestep() - 1] /
                             self.C_m - (self.V_m[self.network.get_timestep() - 1] - self.E_L)/self.tau_m)
-            # much more exact: something between explicit and implicit euler method
+            # lot more exact: something between explicit and implicit euler method
             # dv = self.dt * (cur_current /
             #                self.C_m - (self.V_m[self.network.get_timestep() - 1] - self.E_L)/self.tau_m)
             self.V_m[self.network.get_timestep(
@@ -146,7 +147,7 @@ class lif_neuron_matrix(Neuron):
             self.V_m_rel_to_E_L = self.V_reset - self.E_L
             self.refractory_steps -= 1
 
-        # save membrane voltage to voltage history array
+        # save membrane voltage to voltage history array in order to plot later
         self.V_m[self.network.get_timestep()] = self.V_m_rel_to_E_L + self.E_L
 
         if self.V_m[self.network.get_timestep()] >= self.V_th:
