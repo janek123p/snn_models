@@ -18,7 +18,7 @@ class Synapse(AbstractBaseClass):
             
         self.weight = weight
         self.delay = delay
-        self.delay_steps = int(round(self.delay / self.network.get_timestep()))
+        self.delay_steps = int(round(self.delay / self.network.get_resolution()))
         
         self.network.register_synapse(self)
         
