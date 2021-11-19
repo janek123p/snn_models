@@ -1,6 +1,6 @@
 from network.network import Network
 from neuron_models.leaky_integrate_and_fire import lif_neuron_matrix
-from synapse_models.stdp_tahp_synapse import STDP_TAHP_Synapse
+from synapse_models.stdp_all_to_all_synapse import STDP_TAHP_Synapse
 
 net = Network(sim_params={"t_sim": 1000.})
 
