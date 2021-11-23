@@ -1,27 +1,52 @@
 from synapse_models.synapse import Synapse
 import numpy as np
 
-# small wrapper class for postsynaptic spike
-# containing the timestep and a boolean to indicate, whether
-# this postsynaptic spike has already had an impact on the weight
+
 class PostsynapticSpikeData:
+    """ Small wrapper class for postsynaptic spike
+    containing the timestep and a boolean to indicate, whether
+    this postsynaptic spike has already had an impact on the weight. """
+
     def __init__(self, ts):
+        """ Initialize data 
+        ts: Timestep of the postsynaptic spike
+        """
         self.ts = ts
         self.potentiation_was_performed = False
 
     def is_potentiation_performed(self):
+        """ Return if potentiation with this postsynaptic spike has already been performed. """
         return self.potentiation_was_performed
 
     def set_potentiation_performed(self):
+        """ Mark potentation as performed """
         self.potentiation_was_performed = True
 
     def get_timestep(self):
+        """ Get timestep of the postsynaptic spike. """
         return self.ts
 
-# class for STDP synapse with nearest neighbour pairing scheme
+
 class STDP_NN_SymmSnyapse(Synapse):
+    """ Class for STDP synapse with nearest neighbour pairing scheme. """
 
     def __init__(self, network, source, target, init_weight, delay, params=None):
+        """ Initialize stdp_nn_synapse 
+        network: Network instance the synapse belongs to
+        source: Source neuron or source neuron id
+        target: Target neuron of target neuron id
+        init_weight: Inital weight of the synapse
+        delay: Delay of the synapse
+        params: Dictionary specifying the following parameters:
+            -lambda (scaling factor)[0.01]
+            -tau_plus (time constant of the presynaptic trace)[20 ms]
+            -tau_minus (time constant of the postsynaptic trace)[20 ms]
+            -alpha (factor fo possible asymmetry in weight change)[1.0]
+            -mu_plus (exponent for potentiation)[1.0]
+            -mu_minu (expontent for depression)[1.0]
+            -w_max (maximal allowed weight, may be negative)[1200.0]
+        """
+
         super().__init__(network, source, target, init_weight, delay)
 
         std_params = {"lambda": 0.01, "tau_plus": 20., "tau_minus": 20., "alpha": 1.0,
@@ -47,6 +72,8 @@ class STDP_NN_SymmSnyapse(Synapse):
 
     # OVERRIDE
     def handle_presynaptic_spike(self):
+        """ Handling of the presynaptic spike. """  
+
         # get delay of synapse in steps, current timestep and
         delay_steps = self.delay_steps
         t_pre = self.network.get_timestep()
@@ -97,10 +124,16 @@ class STDP_NN_SymmSnyapse(Synapse):
 
     # OVERRIDE
     def handle_postsynaptic_spike(self):
+        """ Handling of the postsynaptic spike. """  
+
         self.postsynaptic_spikedata.append(
             PostsynapticSpikeData(self.network.get_timestep()))
 
     def filter_unnecessary_postsyn_spikes_and_get_latest_in_range(self):
+        """ Return latest postsynaptic spike that occured strictly before
+        current_timstep - delay and filter all postsynaptic spikes from the list
+        that are no longer needed. """
+        
         # get current timestep
         t = self.network.get_timestep()
         # get all spikes before now - delay and grab last one

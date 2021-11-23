@@ -4,8 +4,11 @@ from abc import ABC as AbstractBaseClass, abstractmethod
 
 
 class Neuron(AbstractBaseClass):
+    """ Abstract base class for neuron models. """
 
     def get_param(self, key):
+        """ Return parameter with given key either from params
+        or from default_params if not specified in params. """
         if self.params is not None and key in self.params:
             return self.params[key]
         elif self.default_params is not None and key in self.default_params:
@@ -13,6 +16,12 @@ class Neuron(AbstractBaseClass):
         raise ValueError("For this neuron "+key+" is a necessary parameter!")
 
     def __init__(self, network, model_name, params, default_params=None):
+        """ Initialize common parameters of neurons.
+        network: Network instance the neuron belongs to
+        model_name: Ideally unique model name
+        params: Parameters specified for the neuron model
+        default_params: Parameters the neuron uses if no parameters are specified in params
+        """
         self.params = params
         self.default_params = default_params
         self.t_ref = self.get_param("t_ref")
@@ -32,6 +41,10 @@ class Neuron(AbstractBaseClass):
         self.model_name = model_name
 
     def plot_results(self, plot_input=True, title=None):
+        """ Plot membrane voltage ofhe neuron. Neuron must have been simulated already!
+        plot_input: Boolean to specify whether the input current should be plotted in the same plot
+        title: Title of the plot; If None: Title will be Simulation of <model_name> 
+        """
         fig, ax = plt.subplots()
         if title is None:
             fig.suptitle("Simulation of "+self.model_name)
@@ -52,12 +65,17 @@ class Neuron(AbstractBaseClass):
         plt.show()
 
     def spike(self):
+        """ Method to be called by subclasses in case of an action potential. """
         self.network.handle_spike(self)
 
     @abstractmethod
     def handle_incoming_spike(self, weight, delay):
+        """ Abstract method to handle an incoming spike from a connected neuron. 
+        Needs to be implemented by subclasses. """
         pass
 
     @abstractmethod
     def update_step(self):
+        """ Abstract method to update the neuron for one time step.
+        Needs to be implemented by subclasses. """
         pass

@@ -2,11 +2,25 @@ from neuron_models.neuron import Neuron
 import numpy as np
 
 
-# implementation of approximation of an integrate and fire
-# neuron with exponential shaped postsynaptic current with euler method
 class lif_neuron_euler(Neuron):
+    """ Implementation of approximation of an integrate and fire neuron 
+    with exponentially shaped postsynaptic current with euler method """
 
     def __init__(self, network, params=None):
+        """ Initialize lif_psc_exp_euler neuron. 
+        network: Network instance the neuron belongs to
+        params: Dictionary specifying the following paramters of the neuron: 
+            -V_th (threshold voltage)[-55.0 mV]
+            -V_reset (reset voltage)[-70 mV]
+            -tau_m (time constant for leakage of the neuron)[10.0 ms]
+            -C_m (membrane capacity)[250.0 pF]
+            -I_e (external current)[0.0 pA]
+            -V_init (inital membrane voltage)[-70.0 mV]
+            -E_L (resting membrane potential)[-70.0 mV]
+            -t_ref (absolute refractory period)[2.0 ms]
+            -tau_in (time constant for decay of inhibitory postsynaptic current)[2.0 ms]
+            -tau_ex (time constant for decay of excitatory postsynaptic current)[2.0 ms]
+        """
 
         # call super constructor
         super().__init__(network, "lif_psc_exp_euler", params, default_params={'V_th': -55.0, 'V_reset': -70.0, 'tau_m': 10.0, 'C_m': 250.0, 'I_e': 0., 'V_init': -70.0,
@@ -33,6 +47,10 @@ class lif_neuron_euler(Neuron):
         self.I_syn_ex = 0.
 
     def handle_incoming_spike(self, weight, delay):
+        """ Neuron handles incoming spike and adjusts postsynaptic current depending on the weight.
+        weight: Current weight of the synapse the action potential comes from
+        delay: Delay of the synapse
+        """
         # calculate index in buffer
         index = 1 + self.network.get_timestep() + int(round(delay / self.dt, 0))
         # ignore spike if spike time is after simulation duration
@@ -44,6 +62,7 @@ class lif_neuron_euler(Neuron):
                 self.spike_current_in[index] += weight
 
     def update_step(self):
+        """ Update the neuron for one timestep. """
         # get incoming spike currents
         spikes_ex = self.spike_current_ex[self.network.get_timestep()]
         spikes_in = self.spike_current_in[self.network.get_timestep()]
@@ -58,7 +77,7 @@ class lif_neuron_euler(Neuron):
 
         # check if neuron is refractory
         if self.refractory_steps > 0:
-            # refractory ==> save reset voltage to V_m in order to 
+            # refractory ==> save reset voltage to V_m in order to
             # plot it later and decrease number of refractory timesteps
             self.V_m[self.network.get_timestep()] = self.V_reset
             self.refractory_steps -= 1
@@ -79,11 +98,25 @@ class lif_neuron_euler(Neuron):
             self.spike()
 
 
-# implementation of an integrate and fire
-# neuron with exponential shaped postsynaptic current
 class lif_neuron_matrix(Neuron):
+    """implementation of an integrate and fire neuron
+    with exponentially shaped postsynaptic current"""
 
     def __init__(self, network,  params=None):
+        """ Initialize lif_psc_exp_exact neuron. 
+        network: Network instance the neuron belongs to
+        params: Dictionary specifying the following paramters of the neuron: 
+            -V_th (threshold voltage)[-55.0 mV]
+            -V_reset (reset voltage)[-70 mV]
+            -tau_m (time constant for leakage of the neuron)[10.0 ms]
+            -C_m (membrane capacity)[250.0 pF]
+            -I_e (external current)[0.0 pA]
+            -V_init (inital membrane voltage)[-70.0 mV]
+            -E_L (resting membrane potential)[-70.0 mV]
+            -t_ref (absolute refractory period)[2.0 ms]
+            -tau_in (time constant for decay of inhibitory postsynaptic current)[2.0 ms]
+            -tau_ex (time constant for decay of excitatory postsynaptic current)[2.0 ms]
+        """
 
         # call super constructor
         super().__init__(network, "lif_psc_exp_exact", params, default_params={'V_th': -55.0, 'V_reset': -70.0, 'tau_m': 10.0, 'C_m': 250.0, 'tau_ex': 2.0, 'I_e': 0.,
@@ -121,6 +154,10 @@ class lif_neuron_matrix(Neuron):
             (self.C_m*(self.tau_in-self.tau_m)) * (self.P_11_in-self.P_22)
 
     def handle_incoming_spike(self, weight, delay):
+        """ Neuron handles incoming spike and adjusts postsynaptic current depending on the weight.
+        weight: Current weight of the synapse the action potential comes from
+        delay: Delay of the synapse
+        """
         index = 1 + self.network.get_timestep() + int(round(delay / self.dt, 0))
         # check if spike arrival is during simulation duration
         if index < len(self.spike_current_ex):
@@ -130,6 +167,7 @@ class lif_neuron_matrix(Neuron):
                 self.spike_current_in[index] += weight
 
     def update_step(self):
+        """ Update the neuron for one timestep. """
         # get incoming spike currents
         spikes_ex = self.spike_current_ex[self.network.get_timestep()]
         spikes_in = self.spike_current_in[self.network.get_timestep()]
