@@ -33,7 +33,7 @@ class PostsynapticSpikeData:
         """ Get timestep of the postsynaptic spike. """
         return self.ts
 
-class STDP_TAHP_Synapse(Synapse):
+class STDPAllToAllSynapse(Synapse):
     """ class for STDP synapse with all-to-all pairing scheme """
 
     def __init__(self, network, source, target, init_weight, delay, params=None):
