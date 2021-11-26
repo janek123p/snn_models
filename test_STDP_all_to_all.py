@@ -12,9 +12,9 @@ input_neuron4 = lif_neuron_matrix(net, {"I_e": 800.})
 output_neuron = lif_neuron_matrix(net, {"I_e": 350.})
 
 syn = STDPAllToAllSynapse(net, input_neuron, output_neuron, init_weight = 700., delay = 1.5, params={"w_max":1400})
-syn = STDPAllToAllSynapse(net, input_neuron2, output_neuron, init_weight = 300., delay = 2.5, params={"w_max":1400})
-syn = STDPAllToAllSynapse(net, input_neuron3, output_neuron, init_weight = 400., delay = 2, params={"w_max":1400})
-syn = STDPAllToAllSynapse(net, input_neuron4, output_neuron, init_weight = 800., delay = 0.5, params={"w_max":1400})
+syn2 = STDPAllToAllSynapse(net, input_neuron2, output_neuron, init_weight = 300., delay = 2.5, params={"w_max":1400})
+syn3 = STDPAllToAllSynapse(net, input_neuron3, output_neuron, init_weight = 400., delay = 2, params={"w_max":1400})
+syn4 = STDPAllToAllSynapse(net, input_neuron4, output_neuron, init_weight = 800., delay = 0.5, params={"w_max":1400})
 
 net.simulate()
 
@@ -23,3 +23,5 @@ V_m = output_neuron.V_m
 for i in range(0,10001,1):
   print(i*0.1, V_m[i])
 # output_neuron.plot_results()
+
+syn.plot_weight_history()

@@ -84,8 +84,9 @@ class STDPAllToAllSynapse(Synapse):
     def handle_presynaptic_spike(self):  
         """ Handling of the presynaptic spike. """  
 
-        # get delay of synapse in steps, current timestep and
-        # timestep of last presynaptic spike
+        # get current weight, delay of synapse in steps, 
+        # current timestep and timestep of last presynaptic spike
+        weight_start = self.weight 
         delay_steps = self.delay_steps
         t_pre = self.network.get_timestep()
         t_pre_last = self.last_presynaptic_spike_timestep
@@ -137,6 +138,11 @@ class STDPAllToAllSynapse(Synapse):
         #update trace variable
         self.pre_syn_trace = self.pre_syn_trace * \
             np.exp(self.network.get_resolution()*(t_pre_last - t_pre)/self.tau_plus) + 1.
+
+        # if weight has changed, call note_weight_change in order to be 
+        # able to plot weight changes later
+        if self.weight != weight_start:
+            self.note_weight_change()
 
     # OVERRIDE
     def handle_postsynaptic_spike(self):

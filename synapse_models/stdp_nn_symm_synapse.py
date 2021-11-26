@@ -52,7 +52,7 @@ class STDP_NN_SymmSnyapse(Synapse):
         std_params = {"lambda": 0.01, "tau_plus": 20., "tau_minus": 20., "alpha": 1.0,
                       "mu_plus": 1., "mu_minus": 1., "w_max": 1200.}
 
-        self.last_presynaptic_spiketimestep = 0
+        self.last_presynaptic_spike_timestep = 0
 
         self.postsynaptic_spikedata = []
 
@@ -74,10 +74,12 @@ class STDP_NN_SymmSnyapse(Synapse):
     def handle_presynaptic_spike(self):
         """ Handling of the presynaptic spike. """  
 
-        # get delay of synapse in steps, current timestep and
+        # get current weight, delay of synapse in steps, 
+        # current timestep and timestep of last presynaptic spike
+        weight_start = self.weight 
         delay_steps = self.delay_steps
         t_pre = self.network.get_timestep()
-        t_pre_last = self.last_presynaptic_spiketimestep
+        t_pre_last = self.last_presynaptic_spike_timestep
 
         ### POTENTIATION ############################################
         # perform all postsynaptic weight potentiations
@@ -120,7 +122,12 @@ class STDP_NN_SymmSnyapse(Synapse):
             self.target_id).handle_incoming_spike(self.weight, self.delay)
 
         # update last spike
-        self.last_presynaptic_spiketimestep = self.network.get_timestep()
+        self.last_presynaptic_spike_timestep = self.network.get_timestep()
+
+        # if weight has changed, call note_weight_change in order to be 
+        # able to plot weight changes later
+        if self.weight != weight_start:
+            self.note_weight_change()
 
     # OVERRIDE
     def handle_postsynaptic_spike(self):
