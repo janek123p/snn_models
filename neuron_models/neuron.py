@@ -13,7 +13,7 @@ class Neuron(AbstractBaseClass):
             return self.params[key]
         elif self.default_params is not None and key in self.default_params:
             return self.default_params[key]
-        raise ValueError("For this neuron "+key+" is a necessary parameter!")
+        return None
 
     def __init__(self, network, model_name, params, default_params=None):
         """ Initialize common parameters of neurons.
@@ -61,6 +61,10 @@ class Neuron(AbstractBaseClass):
         ax.plot(np.arange(0, self.t_sim+(self.dt/2.), self.dt),
                 self.V_m, color="red", linewidth=1)
         ax.set_ylabel("V_m [mV]", color="red", fontsize=14)
+        V_th = self.get_param("V_th")
+        V_reset = self.get_param("V_reset")
+        if V_th is not None and V_reset is not None:
+            ax.set_ylim((V_reset-1, V_th+1))
 
         plt.show()
 
