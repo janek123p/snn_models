@@ -6,7 +6,7 @@ class Network:
         sim_params: Dict with network specific parameters t_sim [1000 ms] and dt [0.1 ms].       
         """
         params = {"t_sim": 1000., "dt": 0.1}
-        if params is not None:
+        if sim_params is not None:
             params.update(sim_params)
         
         self.dt = params["dt"]
